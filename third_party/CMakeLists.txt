@@ -3,6 +3,12 @@ set(BUILD_STATIC_LIBS OFF)
 set(BUILD_OBJECT_LIBS OFF)
 set(BUILD_TESTING OFF)
 
+message(STATUS "Handling third-party library: boost-ext.di")
+set(DI_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/di/include"
+    CACHE STRING "Boost-ext.di include directory"
+    FORCE
+)
+
 message(STATUS "Handling third-party library: jsoncpp")
 set(JSONCPP_WITH_TESTS OFF)
 set(JSONCPP_WITH_PKGCONFIG_SUPPORT OFF)

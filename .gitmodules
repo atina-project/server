@@ -13,3 +13,6 @@
 [submodule "third_party/drogon"]
 	path = third_party/drogon
 	url = https://github.com/atina-project/drogon.git
+[submodule "third_party/di"]
+	path = third_party/di
+	url = https://github.com/atina-project/di.git
