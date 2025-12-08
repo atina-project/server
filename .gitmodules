@@ -16,3 +16,6 @@
 [submodule "third_party/di"]
 	path = third_party/di
 	url = https://github.com/atina-project/di.git
+[submodule "third_party/sqlite_orm"]
+	path = third_party/sqlite_orm
+	url = https://github.com/atina-project/sqlite_orm.git
