@@ -34,6 +34,12 @@ set(LIBUUID_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/libuuid/include"
     FORCE
 )
 
+message(STATUS "Handling third-party library: sqlite_orm")
+set(SQLITE_ORM_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/sqlite_orm/include"
+    CACHE STRING "sqlite_orm include directory"
+    FORCE
+)
+
 message(STATUS "Handling third-party library: zlib")
 # set(ZLIB_BUILD_SHARED OFF)
 set(ZLIB_BUILD_STATIC OFF)
@@ -43,6 +49,7 @@ add_subdirectory(zlib)
 message(STATUS "Handling third-party library: drogon")
 set(DROGON_BUILD_EXAMPLES OFF)
 set(DROGON_BUILD_DOC OFF)
+# set(DROGON_BUILD_ORM OFF)
 set(DROGON_BUILD_BROTLI OFF)
 set(DROGON_BUILD_YAML_CONFIG OFF)
 set(DROGON_BUILD_SQLITE ON)
