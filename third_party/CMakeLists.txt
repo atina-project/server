@@ -20,6 +20,13 @@ set(JSONCPP_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/jsoncpp/include"
     FORCE
 )
 
+message(STATUS "Handling third-party library: libsodium")
+add_subdirectory(libsodium)
+set(LIBSODIUM_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/libsodium/src/libsodium/include
+    CACHE STRING "libsodium include directory"
+    FORCE
+)
+
 message(STATUS "Handling third-party library: libsqlite3")
 add_subdirectory(libsqlite3)
 set(SQLITE3_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/libsqlite3/include"
