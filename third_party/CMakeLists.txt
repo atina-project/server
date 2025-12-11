@@ -22,7 +22,10 @@ set(JSONCPP_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/jsoncpp/include"
 
 message(STATUS "Handling third-party library: libsodium")
 add_subdirectory(libsodium)
-set(LIBSODIUM_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/libsodium/src/libsodium/include
+set(LIBSODIUM_INCLUDE_DIR
+    ${CMAKE_CURRENT_SOURCE_DIR}/libsodium/src/libsodium/include
+    ${CMAKE_CURRENT_SOURCE_DIR}/libsodium/src/libsodium/include/sodium
+    ${CMAKE_BINARY_DIR}
     CACHE STRING "libsodium include directory"
     FORCE
 )
