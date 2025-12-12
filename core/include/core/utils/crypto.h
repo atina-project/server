@@ -28,14 +28,19 @@ namespace atina::server::core::utils {
              * Returns am empty string on error.
              * This function overwrites password in memory by default (with `sodium_memzero()`).
              */
-            static std::string get_pswd_hash(const std::string& __cr_pswd, bool __clear_pswd = true);
+            static std::string get_pswd_hash(std::string& __r_pswd, bool __clear_pswd = true);
 
             /**
              * Compare one password with a stored password hash.
              * Returns 0 on success, 1 on failed, -1 on error (not initialized).
              * This function overwrites password in memory by default (with `sodium_memzero()`) but will not overwrite stored password hash.
              */
-            static int compare_pswd_hash(const std::string& __cr_stored_pswd_hash, const std::string& __cr_pswd, bool __clear_pswd = true);
+            static int compare_pswd_hash(const std::string& __cr_stored_pswd_hash, std::string& __r_pswd, bool __clear_pswd = true);
+
+            /**
+             * Call `sodium_memzero()` to overwrite one string in memory.
+             */
+            static void memzero(std::string& __r_str);
 
         private:
             static inline bool _is_inited = false;

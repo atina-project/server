@@ -40,7 +40,7 @@ std::string utils::crypto::get_random_str(unsigned int __bytes){
     return hex_str;
 }
 
-std::string utils::crypto::get_pswd_hash(const std::string& __cr_pswd, bool __clear_pswd){
+std::string utils::crypto::get_pswd_hash(std::string& __r_pswd, bool __clear_pswd){
     if (!_is_inited)
     {
         return "";
@@ -49,7 +49,7 @@ std::string utils::crypto::get_pswd_hash(const std::string& __cr_pswd, bool __cl
     char out[crypto_pwhash_STRBYTES];
     if (crypto_pwhash_str(
         out,
-        __cr_pswd.c_str(), __cr_pswd.size(),
+        __r_pswd.c_str(), __r_pswd.size(),
         crypto_pwhash_OPSLIMIT_INTERACTIVE,
         crypto_pwhash_MEMLIMIT_INTERACTIVE
     ) != 0)
@@ -59,16 +59,13 @@ std::string utils::crypto::get_pswd_hash(const std::string& __cr_pswd, bool __cl
 
     if (__clear_pswd)
     {
-        sodium_memzero(
-            const_cast<char*>(__cr_pswd.data()),
-            __cr_pswd.size()
-        );
+        sodium_memzero(__r_pswd.data(), __r_pswd.size());
     } // overwrite pswd mem
     
     return std::string(out);
 }
 
-int utils::crypto::compare_pswd_hash(const std::string& __cr_stored_pswd_hash, const std::string& __cr_pswd, bool __clear_pswd){
+int utils::crypto::compare_pswd_hash(const std::string& __cr_stored_pswd_hash, std::string& __r_pswd, bool __clear_pswd){
     if (!_is_inited)
     {
         return -1;
@@ -76,16 +73,18 @@ int utils::crypto::compare_pswd_hash(const std::string& __cr_stored_pswd_hash, c
 
     int ret = crypto_pwhash_str_verify(
         __cr_stored_pswd_hash.c_str(),
-        __cr_pswd.c_str(), __cr_pswd.size()
+        __r_pswd.c_str(), __r_pswd.size()
     );
 
     if (__clear_pswd)
     {
-        sodium_memzero(
-            const_cast<char*>(__cr_pswd.data()),
-            __cr_pswd.size()
-        );
+        sodium_memzero(__r_pswd.data(), __r_pswd.size());
     } // overwrite pswd mem
 
     return (ret == 0) ? 0 : 1;
+}
+
+void utils::crypto::memzero(std::string& __r_str){
+    sodium_memzero(__r_str.data(), __r_str.size());
+    return;
 }
