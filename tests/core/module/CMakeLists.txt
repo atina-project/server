@@ -1,0 +1,10 @@
+add_executable(test_core_module_account_db_create
+    ${CMAKE_CURRENT_SOURCE_DIR}/account_db_create.cpp
+)
+target_include_directories(test_core_module_account_db_create
+    PUBLIC
+        ${ATINA_SERVER_CORE_INCLUDE_DIR}
+)
+target_link_libraries(test_core_module_account_db_create
+    atina-server-core
+)
