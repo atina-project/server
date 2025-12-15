@@ -8,15 +8,24 @@ utils::timer::timer(){
 }
 
 void utils::timer::stop(){
-    auto now = std::chrono::steady_clock::now();
-
-    this->_duration = std::chrono::duration_cast<std::chrono::milliseconds>(
-        now - this->_start
-    ).count();
-
+    this->_stop = std::chrono::steady_clock::now();
     return;
 }
 
-uint64_t utils::timer::count() const noexcept {
-    return this->_duration;
+int64_t utils::timer::count_s() const noexcept {
+    return std::chrono::duration_cast<std::chrono::seconds>(
+        this->_stop - this->_start
+    ).count();
+}
+
+int64_t utils::timer::count_ms() const noexcept {
+    return std::chrono::duration_cast<std::chrono::milliseconds>(
+        this->_stop - this->_start
+    ).count();
+}
+
+int64_t utils::timer::count_us() const noexcept {
+    return std::chrono::duration_cast<std::chrono::microseconds>(
+        this->_stop - this->_start
+    ).count();
 }

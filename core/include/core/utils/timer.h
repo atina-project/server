@@ -9,26 +9,20 @@ namespace atina::server::core::utils {
     class timer {
 
         public:
-            /**
-             * Create and start a timer.
-             */
             timer();
             ~timer(){}
 
-            /**
-             * Stop the timer and count duration.
-             */
             void stop();
-            /**
-             * Get duration in milliseconds.
-             */
-            uint64_t count() const noexcept;
+
+            int64_t count_s() const noexcept;
+            int64_t count_ms() const noexcept;
+            int64_t count_us() const noexcept;
 
         private:
             using now_t = decltype(std::chrono::steady_clock::now());
 
             now_t _start;
-            uint64_t _duration;
+            now_t _stop;
 
     }; // class timer
 
