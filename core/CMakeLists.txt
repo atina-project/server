@@ -7,6 +7,7 @@ set(ATINA_SERVER_CORE_INCLUDE_DIR "${PROJECT_SOURCE_DIR}/include"
 set(ATINA_SERVER_CORE_SRC_LIST
     ${PROJECT_SOURCE_DIR}/src/builtin/thread_pool.cpp
     ${PROJECT_SOURCE_DIR}/src/database/data.cpp
+    ${PROJECT_SOURCE_DIR}/src/email/html_template.cpp
     ${PROJECT_SOURCE_DIR}/src/utils/crypto.cpp
     ${PROJECT_SOURCE_DIR}/src/utils/time.cpp
     ${PROJECT_SOURCE_DIR}/src/utils/timer.cpp
