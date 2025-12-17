@@ -9,6 +9,7 @@ set(ATINA_SERVER_CORE_SRC_LIST
     ${PROJECT_SOURCE_DIR}/src/database/data.cpp
     ${PROJECT_SOURCE_DIR}/src/email/html_template.cpp
     ${PROJECT_SOURCE_DIR}/src/utils/crypto.cpp
+    ${PROJECT_SOURCE_DIR}/src/utils/folder.cpp
     ${PROJECT_SOURCE_DIR}/src/utils/time.cpp
     ${PROJECT_SOURCE_DIR}/src/utils/timer.cpp
     ${PROJECT_SOURCE_DIR}/src/utils/uuid.cpp
