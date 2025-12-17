@@ -1,3 +1,5 @@
+#pragma once
+
 #ifndef __ATINA_SERVER_CORE_UTILS_TIMER_H__
 #define __ATINA_SERVER_CORE_UTILS_TIMER_H__
 
@@ -19,10 +21,10 @@ namespace atina::server::core::utils {
             int64_t count_us() const noexcept;
 
         private:
-            using now_t = decltype(std::chrono::steady_clock::now());
+            using timepoint_t = decltype(std::chrono::steady_clock::now());
 
-            now_t _start;
-            now_t _stop;
+            timepoint_t _start;
+            timepoint_t _stop;
 
     }; // class timer
 
