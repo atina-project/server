@@ -17,5 +17,6 @@ include(cmake/fetch_curl.cmake)
 add_subdirectory(third_party)
 
 add_subdirectory(core)
+add_subdirectory(email_templates)
 
 add_subdirectory(tests)

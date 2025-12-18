@@ -1,3 +1,5 @@
+#pragma once
+
 #ifndef __ATINA_SERVER_CORE_EMAIL_HTML_TEMPLATE_H__
 #define __ATINA_SERVER_CORE_EMAIL_HTML_TEMPLATE_H__
 
@@ -19,6 +21,14 @@ namespace atina::server::core::email {
         public:
             bool is_empty() const noexcept;
             std::string render(const contexts& __cr_ctx);
+
+        public:
+            enum class lang {
+                en,
+                zhCN
+            };
+
+            static html_template create(const std::string& __cr_name, lang __lang);
 
         private:
             std::string _template;
