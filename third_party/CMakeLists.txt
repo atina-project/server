@@ -9,6 +9,23 @@ set(DI_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/di/include"
     FORCE
 )
 
+message(STATUS "Handling third-party library: g3log")
+if(CMAKE_VERSION VERSION_GREATER_EQUAL "3.24.0")
+    cmake_policy(SET CMP0077 "NEW")
+endif()
+set(ADD_FATAL_EXAMPLE OFF)
+set(ADD_G3LOG_PERFORMANCE OFF)
+set(ADD_G3LOG_UNIT_TEST OFF)
+set(INSTALL_G3LOG OFF)
+set(USE_DYNAMIC_LOGGING_LEVELS ON)
+add_subdirectory(g3log)
+set(G3LOG_INCLUDE_DIR
+    "${CMAKE_CURRENT_SOURCE_DIR}/g3log/src"
+    "${CMAKE_CURRENT_BINARY_DIR}/g3log/include"
+    CACHE STRING "g3log include directory"
+    FORCE
+)
+
 message(STATUS "Handling third-party library: jsoncpp")
 set(JSONCPP_WITH_TESTS OFF)
 set(JSONCPP_WITH_PKGCONFIG_SUPPORT OFF)
@@ -23,8 +40,8 @@ set(JSONCPP_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/jsoncpp/include"
 message(STATUS "Handling third-party library: libsodium")
 add_subdirectory(libsodium)
 set(LIBSODIUM_INCLUDE_DIR
-    ${CMAKE_CURRENT_SOURCE_DIR}/libsodium/src/libsodium/include
-    ${CMAKE_CURRENT_SOURCE_DIR}/libsodium/src/libsodium/include/sodium
+    "${CMAKE_CURRENT_SOURCE_DIR}/libsodium/src/libsodium/include"
+    "${CMAKE_CURRENT_SOURCE_DIR}/libsodium/src/libsodium/include/sodium"
     ${CMAKE_BINARY_DIR}
     CACHE STRING "libsodium include directory"
     FORCE

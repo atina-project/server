@@ -22,3 +22,6 @@
 [submodule "third_party/libsodium"]
 	path = third_party/libsodium
 	url = https://github.com/atina-project/libsodium.git
+[submodule "third_party/g3log"]
+	path = third_party/g3log
+	url = https://github.com/atina-project/g3log.git
