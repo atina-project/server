@@ -4,6 +4,7 @@
 #include<sstream>
 
 #include"curl/curl.h"
+#include"json/json.h"
 
 #define CURL_SAFE_SETOPT(curl, opt, data, res, errmsg)  \
     res = curl_easy_setopt(curl.get(), opt, data);      \
@@ -17,7 +18,6 @@
     }
 
 using namespace atina::server::core;
-namespace fs = std::filesystem;
 
 struct utils::request::_guard {
 
@@ -34,6 +34,7 @@ struct utils::request::_guard {
 }; // struct utils::request::_guard
 
 std::unique_ptr<utils::request::_guard> utils::request::_p_guard = nullptr;
+std::string utils::request::_useragent = "";
 
 void utils::request::init(){
     if (_p_guard)
@@ -47,59 +48,55 @@ void utils::request::init(){
 }
 
 int utils::request::get(
-    const std::string& __cr_host,
-    int __port,
-    const std::string& __cr_endpoint,
-    bool __https,
-    int __timeout_s,
-    response& __o_res,
-    std::string& __o_errmsg,
-    bool __crt_verify,
-    const fs::path& __cr_crt_path
+    const utils::request::request_param& __cr_param,
+    utils::request::str_response* __op_res,
+    std::string* __op_errmsg
 ){
     assert(_p_guard);
 
     std::unique_ptr<CURL, decltype(&curl_easy_cleanup)> curl(curl_easy_init(), curl_easy_cleanup);
     if (!curl)
     {
-        __o_errmsg = "Failed to initialize curl object";
+        *__op_errmsg = "Failed to initialize curl object";
         return 1;
     }
 
-    std::string url = _build_url(__cr_host, __port, __cr_endpoint, __https);
+    std::string url = _build_url(
+        __cr_param.host, __cr_param.port, __cr_param.endpoint, __cr_param.https
+    );
     std::string response_data;
     CURLcode res;
 
-    CURL_SAFE_SETOPT(curl, CURLOPT_URL, url.c_str(), res, __o_errmsg);
-    CURL_SAFE_SETOPT(curl, CURLOPT_WRITEFUNCTION, _cb_curl_write_str, res, __o_errmsg);
-    CURL_SAFE_SETOPT(curl, CURLOPT_WRITEDATA, &response_data, res, __o_errmsg);
+    CURL_SAFE_SETOPT(curl, CURLOPT_URL, url.c_str(), res, *__op_errmsg);
+    CURL_SAFE_SETOPT(curl, CURLOPT_WRITEFUNCTION, _cb_curl_write_str, res, *__op_errmsg);
+    CURL_SAFE_SETOPT(curl, CURLOPT_WRITEDATA, &response_data, res, *__op_errmsg);
 
-    if (__crt_verify)
+    if (__cr_param.crt_verify)
     {
-        CURL_SAFE_SETOPT(curl, CURLOPT_SSL_VERIFYPEER, 1L, res, __o_errmsg);
-        CURL_SAFE_SETOPT(curl, CURLOPT_SSL_VERIFYHOST, 2L, res, __o_errmsg);
+        CURL_SAFE_SETOPT(curl, CURLOPT_SSL_VERIFYPEER, 1L, res, *__op_errmsg);
+        CURL_SAFE_SETOPT(curl, CURLOPT_SSL_VERIFYHOST, 2L, res, *__op_errmsg);
 
-        if (!__cr_crt_path.empty())
+        if (!__cr_param.crt_path.empty())
         {
-            CURL_SAFE_SETOPT(curl, CURLOPT_CAINFO, __cr_crt_path.c_str(), res, __o_errmsg);
+            CURL_SAFE_SETOPT(curl, CURLOPT_CAINFO, __cr_param.crt_path.c_str(), res, *__op_errmsg);
         } // custom ca / crt
     } // enable crt verify
     else
     {
-        CURL_SAFE_SETOPT(curl, CURLOPT_SSL_VERIFYPEER, 0L, res, __o_errmsg);
-        CURL_SAFE_SETOPT(curl, CURLOPT_SSL_VERIFYHOST, 0L, res, __o_errmsg);
+        CURL_SAFE_SETOPT(curl, CURLOPT_SSL_VERIFYPEER, 0L, res, *__op_errmsg);
+        CURL_SAFE_SETOPT(curl, CURLOPT_SSL_VERIFYHOST, 0L, res, *__op_errmsg);
     } // disable crt verify
 
-    CURL_SAFE_SETOPT(curl, CURLOPT_TIMEOUT, __timeout_s, res, __o_errmsg);
-    CURL_SAFE_SETOPT(curl, CURLOPT_FOLLOWLOCATION, 1L, res, __o_errmsg);
-    CURL_SAFE_SETOPT(curl, CURLOPT_USERAGENT, _get_useragent().c_str(), res, __o_errmsg);
+    CURL_SAFE_SETOPT(curl, CURLOPT_TIMEOUT, __cr_param.timeout_s, res, *__op_errmsg);
+    CURL_SAFE_SETOPT(curl, CURLOPT_FOLLOWLOCATION, 1L, res, *__op_errmsg);
+    CURL_SAFE_SETOPT(curl, CURLOPT_USERAGENT, _get_useragent().c_str(), res, *__op_errmsg);
 
     res = curl_easy_perform(curl.get());
     if (res != CURLE_OK)
     {
         std::ostringstream oss;
         oss << "Failed to request: " << curl_easy_strerror(res);
-        __o_errmsg = oss.str();
+        *__op_errmsg = oss.str();
         return 1;
     } // request failed
 
@@ -107,7 +104,38 @@ int utils::request::get(
     curl_easy_getinfo(curl.get(), CURLINFO_RESPONSE_CODE, &response_code);
     // should never fails
 
-    __o_res = {response_code, response_data};
+    *__op_res = {response_code, response_data};
+    return 0;
+}
+
+int utils::request::get(
+    const utils::request::request_param& __cr_param,
+    utils::request::json_response* __op_res,
+    std::string* __op_errmsg
+){
+    assert(_p_guard);
+
+    str_response response = {};
+    int ret = get(__cr_param, &response, __op_errmsg);
+    if (ret != 0)
+    {
+        return ret;
+    } // basic GET request failed
+
+    Json::Value root;
+    Json::CharReaderBuilder reader_builder;
+    std::string json_errmsg;
+    const std::unique_ptr<Json::CharReader> reader(reader_builder.newCharReader());
+    if (!reader->parse(
+        response.content.c_str(), response.content.c_str() + response.content.size(),
+        &root, &json_errmsg
+    ))
+    {
+        *__op_errmsg = "Failed to parse json: " + json_errmsg;
+        return 1;
+    } // json parse failed
+
+    *__op_res = {response.response_code, root};
     return 0;
 }
 
@@ -132,15 +160,20 @@ std::string utils::request::_build_url(
 }
 
 std::string utils::request::_get_useragent(){
-    curl_version_info_data* ver = curl_version_info(CURLVERSION_NOW);
-    // no need to free: curl_version_info() returns a reference of a static obj
-    
-    std::ostringstream oss;
-    oss << "libcurl/" << ((ver->version_num >> 16) & 0xFF) << "."
-                      << ((ver->version_num >> 8) & 0xFF) << "."
-                      << (ver->version_num & 0xFF);
+    if (_useragent.empty())
+    {
+        curl_version_info_data* ver = curl_version_info(CURLVERSION_NOW);
+        // no need to free: curl_version_info() returns a reference of a static obj
+        
+        std::ostringstream oss;
+        oss << "libcurl/" << ((ver->version_num >> 16) & 0xFF) << "."
+                          << ((ver->version_num >> 8) & 0xFF) << "."
+                          << (ver->version_num & 0xFF);
 
-    return oss.str();
+        _useragent = oss.str();
+    } // build useragent if empty
+
+    return _useragent;
 }
 
 std::size_t utils::request::_cb_curl_write_str(
